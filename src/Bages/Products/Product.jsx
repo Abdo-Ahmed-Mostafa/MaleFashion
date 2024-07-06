@@ -5,7 +5,7 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../../Componenet/Firebase/firebase";
 import { MdOutlineAddShoppingCart } from "react-icons/md";
 import { FaRegHeart } from "react-icons/fa6";
-import { Hourglass } from "react-loader-spinner";
+import Loading from "../Loading";
 
 const Product = () => {
   const [value, loadingg, errorr] = useCollection(collection(db, `Products`));
@@ -16,15 +16,7 @@ const Product = () => {
       <div className=" container w-100    ">
         <div className=" row d-flex justify-content-center align-items-center gap-3 pt-3 pb-5 ">
           {loadingg ? (
-            <Hourglass
-              visible={true}
-              height="80"
-              width="80"
-              ariaLabel="hourglass-loading"
-              // wrapperStyle={{}}
-              // wrapperClass=""
-              colors={["#ffe26e", "#72a1ed"]}
-            />
+            <Loading />
           ) : (
             value &&
             value.docs.map((data, index) => (
