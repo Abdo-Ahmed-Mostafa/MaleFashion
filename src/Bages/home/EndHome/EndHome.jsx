@@ -1,8 +1,6 @@
 import React from "react";
 import text from "./about-us.jpg";
 
-import { MdStarRate } from "react-icons/md";
-
 const EndHome = () => {
   return (
     <div>

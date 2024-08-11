@@ -30,7 +30,22 @@
   background-color: #ffe26e;
   border-radius: 7px;
 }
-
+.bg-yellow3 :hover {
+  background-color: #493f18 !important;
+  border-radius: 7px !important;
+  color: white !important;
+}
+.bg-yellow2 {
+  border: #ffe26e 2px solid;
+  border-radius: 7px;
+}
+.bg-yellowColor {
+  background-color: #1d1a39;
+}
+/*
+ #1d1a39
+ #451952
+*/
 .landing__container {
   align-items: center;
   background-color: #ffe26e;
@@ -183,4 +198,89 @@
   padding: 0 5px;
   position: absolute;
   width: 100%;
+}
+.shadowDashboard {
+  filter: drop-shadow(0rem 0rem 0.3rem black);
+}
+.read-more-button {
+  color: rgb(105, 105, 237);
+  text-decoration: underline;
+}
+.colorYellow {
+  color: #898930;
+}
+
+.liner {
+  background: #262334;
+}
+.overlay-content {
+  position: absolute;
+  top: 70%;
+  left: 15%;
+  transform: translate(-25%, -50%);
+  text-align: center;
+  color: white;
+  padding: 20px;
+  max-width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px; /* تباعد بين العناصر */
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 1024px) {
+  .overlay-content {
+    left: 30%;
+    transform: translate(-30%, -50%);
+    padding: 15px;
+    max-width: 60%;
+  }
+}
+
+@media (max-width: 768px) {
+  .overlay-content {
+    left: 35%;
+    transform: translate(-35%, -50%);
+    padding: 10px;
+    max-width: 80%;
+    gap: 15px; /* تعديل التباعد للشاشات الأصغر */
+  }
+
+  .not-found-title {
+    font-size: 1.5rem;
+  }
+
+  .not-found-container {
+    height: 80vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay-content {
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 5px;
+    max-width: 90%;
+    gap: 10px; /* تعديل التباعد للشاشات الأصغر */
+  }
+
+  .not-found-title {
+    font-size: 1.2rem;
+  }
+
+  .not-found-container {
+    height: 70vh;
+  }
+}
+
+.not-found-image {
+  width: 100%;
+  height: auto; /* يضبط الارتفاع تلقائيًا بناءً على نسبة العرض */
+  object-fit: contain; /* يحافظ على نسبة الأبعاد بدون اقتصاص */
+}
+.bg-button {
+  background-color: #6371aa;
+  border: none;
 }

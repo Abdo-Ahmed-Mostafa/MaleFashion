@@ -1,114 +1,161 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../Componenet/Firebase/firebase";
+import { BsEmojiWinkFill } from "react-icons/bs";
+import { MdProductionQuantityLimits } from "react-icons/md";
+import { FaUsers } from "react-icons/fa";
+import { useDocument } from "react-firebase-hooks/firestore";
+import Loading from "../../../Loading";
 
-const EdietProduct = () => {
-  const [edItprod, setEdietProd] = useState([]);
+const EditProduct = () => {
+  const [editProd, setEditProd] = useState({});
   const { productid } = useParams();
   const navigate = useNavigate();
-  const getprod = () => {
-    axios({
-      method: "get",
-      url: `http://localhost:9000/products/${productid}`,
-    }).then((data) => setEdietProd(data.data));
-  };
-  const ediet = (prevent) => {
-    prevent.preventDefault();
-    updateDoc(doc(db, "Products", prevent.id), {
-      
+  const [values, loading, error] = useDocument(
+    doc(db, `Products`, `${productid}`)
+  );
 
-    });
+  useEffect(() => {
+    if (values) {
+      setEditProd(values.data());
+    }
+  }, [values]);
+
+  const handleEdit = (event) => {
+    event.preventDefault();
+    updateDoc(doc(db, "Products", productid), editProd);
     navigate(-1);
   };
 
-  useEffect(() => {
-    getprod();
-  }, []);
+  if (loading) return <Loading />;
 
   return (
-    <div>
-      <div className=" container  bg-dark w-75 text-light rounded ">
+    <div className="d-flex justify-content-center align-items-center w-100 ">
+      <div style={{ width: "20%" }} className="bg-yellowColor vh-100 ">
+        <div className="m-4">
+          <div
+            onClick={() => navigate("/admin")}
+            className="d-flex pointer justify-content-center pb-3 w-5 mt-4 gap-3 border-bottom"
+          >
+            <BsEmojiWinkFill className="fs-1 text-white" />
+            <h4 className="mt-1 text-white"> </h4>
+          </div>
+          <div
+            onClick={() => navigate("/admin/product")}
+            className="d-flex pointer justify-content-center pb-3 w-5 mt-4 gap-3 border-bottom"
+          >
+            <MdProductionQuantityLimits className="fs-3 mt-2 text-white" />
+            <h4 className="mt-1 text-white">Products</h4>
+          </div>
+          <div
+            onClick={() => navigate("/admin/users")}
+            className="d-flex pointer justify-content-center pb-3 w-5 mt-4 gap-3 border-bottom"
+          >
+            <FaUsers className="fs-3 mt-2 text-white" />
+            <h4 className="mt-1 text-white">Users</h4>
+          </div>
+        </div>
+      </div>
+      <div className="container shadow bg-white w-50 text-light rounded">
         <Form
-          onSubmit={(prevent) => ediet(prevent)}
-          className="mb-3 mt-3 pt-3 pb-3 fw-bold container  "
+          onSubmit={handleEdit}
+          className="mb-3 mt-3 pt-3 pb-3 fw-bold container"
         >
           <Form.Group className="w-75 ms-5">
-            <Form.Label>Product Name</Form.Label>
+            <Form.Label className="text-secondary fw-bold">
+              Product Name
+            </Form.Label>
             <Form.Control
               type="text"
               placeholder="Product Name"
-              value={edItprod.title}
+              value={editProd?.title || ""}
+              className="border-2 border-warning"
               onChange={(e) =>
-                setEdietProd({ ...edItprod, title: e.target.value })
+                setEditProd({ ...editProd, title: e.target.value })
               }
             />
           </Form.Group>
           <Form.Group className="w-75 ms-5">
-            <Form.Label>Product price</Form.Label>
+            <Form.Label className="text-secondary fw-bold">
+              Product price
+            </Form.Label>
             <Form.Control
               type="text"
+              className="border-2 border-warning"
               placeholder="Product price"
-              value={edItprod.price}
+              value={editProd?.price || ""}
               onChange={(e) =>
-                setEdietProd({ ...edItprod, price: e.target.value })
+                setEditProd({ ...editProd, price: e.target.value })
               }
             />
           </Form.Group>
-          <div className="one d-flex justify-content-around ">
+          <div className="d-flex ms-1 justify-content-around">
             <Form.Group className="w-25">
-              <Form.Label>Product category</Form.Label>
+              <Form.Label className="text-secondary fw-bold">
+                Product category
+              </Form.Label>
               <Form.Control
                 type="text"
+                className="border-2 border-warning"
                 placeholder="Product category"
-                value={edItprod.category}
+                value={editProd?.category || ""}
                 onChange={(e) =>
-                  setEdietProd({ ...edItprod, category: e.target.value })
+                  setEditProd({ ...editProd, category: e.target.value })
                 }
               />
             </Form.Group>
             <Form.Group className="w-50">
-              <Form.Label>Product description</Form.Label>
+              <Form.Label className="text-secondary fw-bold">
+                Product description
+              </Form.Label>
               <Form.Control
                 type="text"
+                className="border-2 border-warning"
                 placeholder="Product description"
-                value={edItprod.description}
+                value={editProd?.description || ""}
                 onChange={(e) =>
-                  setEdietProd({ ...edItprod, description: e.target.value })
+                  setEditProd({ ...editProd, description: e.target.value })
                 }
               />
             </Form.Group>
           </div>
-          <div className="d-flex justify-content-around ">
+          <div className="d-flex ms-1 justify-content-around">
             <Form.Group className="w-25">
-              <Form.Label>Product image</Form.Label>
+              <Form.Label className="text-secondary fw-bold">
+                Product image
+              </Form.Label>
               <Form.Control
                 type="text"
+                className="border-2 border-warning"
                 placeholder="Product image"
-                value={edItprod.image}
+                value={editProd?.image || ""}
                 onChange={(e) =>
-                  setEdietProd({ ...edItprod, image: e.target.value })
+                  setEditProd({ ...editProd, image: e.target.value })
                 }
               />
             </Form.Group>
             <Form.Group className="w-50">
-              <Form.Label>Product rate</Form.Label>
+              <Form.Label className="text-secondary fw-bold">
+                Product rate
+              </Form.Label>
               <Form.Control
                 type="text"
+                className="border-2 border-warning"
                 placeholder="Product rate"
-                value={edItprod.rating}
+                value={editProd?.rating || ""}
                 onChange={(e) =>
-                  setEdietProd({ ...edItprod, rating: e.target.value })
+                  setEditProd({ ...editProd, rating: e.target.value })
                 }
               />
             </Form.Group>
           </div>
-
           <div className="d-flex justify-content-center mt-3 mb-3">
-            <Button type="submit">Ediet</Button>
+            <Button type="submit" variant="outline-warning">
+              Edit
+            </Button>
           </div>
         </Form>
       </div>
@@ -116,4 +163,4 @@ const EdietProduct = () => {
   );
 };
 
-export default EdietProduct;
+export default EditProduct;

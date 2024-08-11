@@ -5,142 +5,170 @@ import Spinner from "react-bootstrap/Spinner";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../../Componenet/Firebase/firebase";
 import { setDoc, doc } from "firebase/firestore";
-
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
-const Singup = () => {
-  const [userFirstName, setuserFirstName] = useState("");
-  const [userLastName, setuserLastName] = useState("");
-  const [userName, setuserName] = useState("");
-  const [userEmail, setuserEmail] = useState("");
-  const [userPassword, setuserPassword] = useState("");
-  const [userImage, setuserImage] = useState("");
-  const [userCity, setuserCity] = useState("");
-  const [userGender, setuserGender] = useState("male");
-  const [userPhoneNumber, setuserPhoneNumber] = useState("");
-  const [checkFirstName, setcheckFirstName] = useState(true);
-  const [checkLastName, setCheckLastName] = useState(true);
-  const [checkName, setcheckName] = useState(true);
-  const [checkEmail, setcheckEmail] = useState(true);
-  const [checkPassword, setcheckPassword] = useState(true);
-  const [checkImage, setcheckImage] = useState(true);
-  const [checkCity, setcheckCity] = useState(true);
-  const [checkPhoneNumber, setcheckPhoneNumber] = useState(true);
-  const [checkbox, setCheckbox] = useState(false);
-  const [box, setbox] = useState(true);
-  const [role, setRole] = useState("member");
-  const [loding, setloding] = useState(true);
+const Signup = () => {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const trueForm = () => {
-    setcheckFirstName(true);
-    setCheckLastName(true);
-    setcheckName(true);
-    setcheckEmail(true);
-    setcheckPassword(true);
-    setcheckImage(true);
-    setcheckCity(false);
-    setcheckPhoneNumber(true);
-    setbox(true);
+
+  const [stateForm, setStateForm] = useState({
+    userFirstName: "",
+    userLastName: "",
+    userName: "",
+    userEmail: "",
+    userPassword: "",
+    userImage: "",
+    userCity: "",
+    userGender: "male",
+    userPhoneNumber: "",
+    role: "member",
+  });
+
+  const [checkForm, setCheckForm] = useState({
+    checkFirstName: true,
+    checkLastName: true,
+    checkName: true,
+    checkEmail: true,
+    checkPassword: true,
+    checkImage: true,
+    checkCity: true,
+    checkPhoneNumber: true,
+  });
+
+  const returnAllCheck = () => {
+    setCheckForm({
+      checkFirstName: true,
+      checkLastName: true,
+      checkName: true,
+      checkEmail: true,
+      checkPassword: true,
+      checkImage: true,
+      checkCity: true,
+      checkPhoneNumber: true,
+    });
+  };
+  // console.log(stateForm.userEmail.endsWith(".com"));
+
+  const updateCheckForm = (fieldToUpdate) => {
+    setCheckForm((prevState) => ({
+      ...prevState,
+      [fieldToUpdate]: false,
+    }));
   };
 
-  const handelForm = async (prevent) => {
+  const handleForm = async (prevent) => {
     prevent.preventDefault();
+    returnAllCheck();
+    let formIsValid = true;
+
+    if (stateForm.userFirstName === "" || stateForm.userFirstName.length < 4) {
+      updateCheckForm("checkFirstName");
+      formIsValid = false;
+    }
+    if (stateForm.userLastName === "" || stateForm.userLastName.length < 4) {
+      updateCheckForm("checkLastName");
+      formIsValid = false;
+    }
+    if (stateForm.userName === "" || stateForm.userName.length < 4) {
+      updateCheckForm("checkName");
+      formIsValid = false;
+    }
+    if (stateForm.userEmail === "" || !stateForm.userEmail.endsWith(".com")) {
+      updateCheckForm("checkEmail");
+      formIsValid = false;
+    }
+    if (stateForm.userPassword === "" || stateForm.userPassword.length < 6) {
+      updateCheckForm("checkPassword");
+      formIsValid = false;
+    }
+    if (stateForm.userImage === "" || !stateForm.userImage.startsWith("http")) {
+      updateCheckForm("checkImage");
+      formIsValid = false;
+    }
+    if (stateForm.userCity === "" || stateForm.userCity.length < 2) {
+      updateCheckForm("checkCity");
+      formIsValid = false;
+    }
     if (
-      userFirstName != "" &&
-      userLastName != "" &&
-      userName != "" &&
-      userEmail != "" &&
-      userPassword != "" &&
-      userImage != "" &&
-      userCity != "" &&
-      userGender != "" &&
-      userPhoneNumber != ""
+      stateForm.userPhoneNumber === "" ||
+      stateForm.userPhoneNumber.length < 10
     ) {
-      setCheckbox(false);
-      createUserWithEmailAndPassword(auth, userEmail, userPassword)
-        .then((userCredential) => {
-          // Signed up
-          const user = userCredential.user;
-          console.log(user);
-          updateProfile(auth.currentUser, {
-            displayName: `${userFirstName} ${userLastName}`,
-            photoURL: userImage,
-          })
-            .then(() => {})
-            .catch((error) => {
-              // An error occurred
-              // ...
-            });
-          setDoc(doc(db, "Users", `${user.uid}`), {
-            userFirstName,
-            userLastName,
-            userName,
-            userEmail,
-            userPassword,
-            userImage,
-            userCity,
-            userGender,
-            userPhoneNumber,
-            role,
-            id: user.uid,
-          });
+      updateCheckForm("checkPhoneNumber");
+      formIsValid = false;
+    }
 
-          navigate("/singin");
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log(errorCode);
+    if (formIsValid) {
+      setLoading(true);
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          stateForm.userEmail,
+          stateForm.userPassword
+        );
+        const user = userCredential.user;
 
-          // ..
+        await updateProfile(auth.currentUser, {
+          displayName: `${stateForm.userFirstName} ${stateForm.userLastName}`,
+          photoURL: stateForm.userImage,
         });
-    } else {
-      setCheckbox(true);
+
+        await setDoc(doc(db, "Users", `${user.uid}`), {
+          stateForm,
+          id: user.uid,
+        });
+
+        setLoading(false);
+        navigate("/singin");
+      } catch (error) {
+        console.error("Error signing up:", error.message);
+        setLoading(false);
+      }
     }
   };
 
   return (
     <div>
       <div className=" ">
-        <Form
-          onSubmit={(prevent) => handelForm(prevent)}
-          className=" container shadow w-50 my-5 "
-        >
+        <Form onSubmit={handleForm} className=" container shadow w-50 my-5 ">
           <div className="w-100 d-flex justify-content-center pt-5 ">
             <Form.Group
               className={
-                checkFirstName
+                checkForm.checkFirstName
                   ? "mb-3  w-50 mx-3 fw-bold text-dark  "
                   : "mb-3  w-50 mx-3 fw-bold text-danger "
               }
             >
               <Form.Label>
-                {checkFirstName ? "First Name" : "Invalid First Name"}
+                {checkForm.checkFirstName ? "First Name" : "Invalid First Name"}
               </Form.Label>
               <Form.Control
                 type="text"
-                value={userFirstName}
+                value={stateForm.userFirstName}
                 placeholder="Enter First Name"
                 className="border-2 border-warning"
-                onChange={(e) => setuserFirstName(e.target.value)}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userFirstName: e.target.value })
+                }
               />
             </Form.Group>
             <Form.Group
               className={
-                checkLastName
+                checkForm.checkLastName
                   ? "mb-3  w-50 mx-3 ms-5 fw-bold text-dark  "
                   : "mb-3  w-50 mx-3 ms-5 fw-bold text-danger "
               }
             >
               <Form.Label>
-                {checkLastName ? "Last Name" : "Invalid Last Name"}
+                {checkForm.checkLastName ? "Last Name" : "Invalid Last Name"}
               </Form.Label>
               <Form.Control
                 type="text"
                 className="border-2 border-warning"
                 placeholder="Enter Last Name"
-                value={userLastName}
-                onChange={(e) => setuserLastName(e.target.value)}
+                value={stateForm.userLastName}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userLastName: e.target.value })
+                }
               />
             </Form.Group>
           </div>
@@ -148,73 +176,85 @@ const Singup = () => {
             <Form.Group
               style={{ width: "84%" }}
               className={
-                checkName
+                checkForm.checkName
                   ? "mb-3  fw-bold text-dark "
                   : "mb-3  fw-bold text-danger"
               }
             >
               <Form.Label>
-                {checkName ? "User Name" : "Invalid User Name"}
+                {checkForm.checkName ? "User Name" : "Invalid User Name"}
               </Form.Label>
               <Form.Control
                 type="text"
                 className="border-2 border-warning"
                 placeholder="Enter User Name"
-                value={userName}
-                onChange={(e) => setuserName(e.target.value)}
+                value={stateForm.userName}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userName: e.target.value })
+                }
               />
             </Form.Group>
             <Form.Group
               style={{ width: "84%" }}
               className={
-                checkEmail
+                checkForm.checkEmail
                   ? "mb-3  fw-bold text-dark "
                   : "mb-3  fw-bold text-danger "
               }
             >
-              <Form.Label>{checkEmail ? "Email" : "invalid Email"}</Form.Label>
+              <Form.Label>
+                {checkForm.checkEmail ? "Email" : "invalid Email"}
+              </Form.Label>
               <Form.Control
                 type="text"
                 className="border-2 border-warning"
                 placeholder="Enter Email"
-                value={userEmail}
-                onChange={(e) => setuserEmail(e.target.value)}
+                value={stateForm.userEmail}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userEmail: e.target.value })
+                }
               />
             </Form.Group>
             <Form.Group
               style={{ width: "84%" }}
               className={
-                checkPassword
+                checkForm.checkPassword
                   ? "mb-3 fw-bold text-dark "
                   : "mb-3 fw-bold text-danger "
               }
             >
               <Form.Label>
-                {checkPassword ? "Password" : "Invalid password"}
+                {checkForm.checkPassword ? "Password" : "Invalid password"}
               </Form.Label>
               <Form.Control
                 type="password"
                 className="border-2 border-warning"
                 placeholder="password"
-                value={userPassword}
-                onChange={(e) => setuserPassword(e.target.value)}
+                value={stateForm.userPassword}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userPassword: e.target.value })
+                }
               />
             </Form.Group>
             <Form.Group
               style={{ width: "84%" }}
               className={
-                checkImage
+                checkForm.checkImage
                   ? "mb-3 fw-bold text-dark "
                   : "mb-3 fw-bold text-danger "
               }
             >
-              <Form.Label>{checkImage ? "Image" : "Invalid image"}</Form.Label>
+              <Form.Label>
+                {checkForm.checkImage ? "Image" : "Invalid image"}
+              </Form.Label>
               <Form.Control
                 type="text"
                 className="border-2 border-warning"
                 placeholder="Enter Image *-must start with https and end with jpg-* "
-                value={userImage}
-                onChange={(e) => setuserImage(e.target.value)}
+                value={stateForm.userImage}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userImage: e.target.value })
+                }
               />
             </Form.Group>
           </div>
@@ -222,18 +262,22 @@ const Singup = () => {
             <Form.Group
               style={{ width: "25.5%" }}
               className={
-                checkCity
+                checkForm.checkCity
                   ? "mb-3 me-5 fw-bold text-dark "
                   : "mb-3 me-5 fw-bold text-danger "
               }
             >
-              <Form.Label>{checkCity ? "City" : "Invalid City"}</Form.Label>
+              <Form.Label>
+                {checkForm.checkCity ? "City" : "Invalid City"}
+              </Form.Label>
               <Form.Control
                 type="text"
                 className="border-2 border-warning"
                 placeholder="Enter City"
-                value={userCity}
-                onChange={(e) => setuserCity(e.target.value)}
+                value={stateForm.userCity}
+                onChange={(e) =>
+                  setStateForm({ ...stateForm, userCity: e.target.value })
+                }
               />
             </Form.Group>
 
@@ -244,57 +288,49 @@ const Singup = () => {
             <select
               style={{ width: "25.5%", height: "5vh", marginTop: "2.1em" }}
               className="mb-3 me-5 rounded border-2 border-warning "
-              value={userGender}
-              onChange={(e) => setuserGender(e.target.value)}
+              value={stateForm.userGender}
+              onChange={(e) =>
+                setStateForm({ ...stateForm, userGender: e.target.value })
+              }
             >
               <option value="Male">Male</option>
-              <option value="Famle">Female</option>
+              <option value="Female">Female</option>
             </select>
 
             <Form.Group
               style={{ width: "25.5%" }}
               className={
-                checkPhoneNumber
+                checkForm.checkPhoneNumber
                   ? "mb-3 text-dark  fw-bold "
                   : "mb-3   fw-bold text-danger "
               }
             >
               <Form.Label>
-                {checkPhoneNumber ? "Phone Number" : "Invalid Phone Number"}
+                {checkForm.checkPhoneNumber
+                  ? "Phone Number"
+                  : "Invalid Phone Number"}
               </Form.Label>
               <Form.Control
                 type="text"
                 className="border-2 border-warning"
                 placeholder=" Phone Number"
-                value={userPhoneNumber}
-                onChange={(e) => setuserPhoneNumber(e.target.value)}
+                value={stateForm.userPhoneNumber}
+                onChange={(e) =>
+                  setStateForm({
+                    ...stateForm,
+                    userPhoneNumber: e.target.value,
+                  })
+                }
               />
             </Form.Group>
           </div>
-          <div
-            style={{ width: "68%" }}
-            className="d-flex justify-content-center  ms-4 "
-          >
-            <input
-              type="checkbox"
-              style={{ width: "2.5%" }}
-              // onChange={(e) => setCheckbox(e.target.checked)}
-            />
-            <h5
-              style={checkbox ? { color: "red" } : { color: "black" }}
-              className="mt-2 ms-2 fw-bold "
-            >
-              {checkbox
-                ? "please Apply Rules and conditions"
-                : " Apply Rules and conditions"}
-            </h5>
-          </div>
+
           <div className="d-flex justify-content-center mt-5 pb-5">
-            <Button type="submit" variant="outline-warning text-dark fw-bold" >
-              {loding ? (
-                "Create Account"
-              ) : (
+            <Button type="submit" variant="outline-warning text-dark fw-bold">
+              {loading ? (
                 <Spinner animation="border" variant="dark" />
+              ) : (
+                "Create Account"
               )}
             </Button>
           </div>
@@ -304,4 +340,4 @@ const Singup = () => {
   );
 };
 
-export default Singup;
+export default Signup;

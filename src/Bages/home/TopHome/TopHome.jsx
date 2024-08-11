@@ -14,7 +14,7 @@ const TopHome = () => {
               <h1 className="landing__header__main">
                 Checkout The Best Fashion Style
               </h1>
-              <a href="/shop">
+              <a href="/products">
                 <button className="btn btn-outline-dark rounded-4">
                   SHOP NOW
                   <ImArrowRight2 className="ms-3" />

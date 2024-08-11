@@ -1,50 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Logo from "./logo.png";
 import { FaBagShopping } from "react-icons/fa6";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
-import Swal from "sweetalert2";
-import { auth, db } from "../Firebase/firebase";
-import { signOut } from "firebase/auth";
+import { auth } from "../Firebase/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useCollection, useDocument } from "react-firebase-hooks/firestore";
-import { collection, doc } from "firebase/firestore";
+import avatarImage from "../../avatar-icon-vector-illustration.jpg";
 import { FaRegHeart, FaUser } from "react-icons/fa";
 
-const Nave = ({ addCart, singleUser, setSingleUser }) => {
-  const [user, loading, error] = useAuthState(auth);
-  const [value, loadingg, errorr] = useCollection(collection(db, `Users`));
-  const [values, loadinggs, errorrs] = useDocument(
-    doc(db, `Users`, `${user && user.uid}`)
+const Nave = ({ addCart, singleUser, onLogout }) => {
+  const [user] = useAuthState(auth);
+  const [imageSrc, setImageSrc] = useState(
+    singleUser?.userImage || avatarImage
   );
 
-  // console.log(singleUser && singleUser);
-
-  const navigate = useNavigate();
-  const Logout = async () => {
-    signOut(auth)
-      .then(() => {
-        localStorage.clear();
-        Swal.fire({
-          position: "center",
-          icon: "info",
-          title: "Logged Out",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        navigate("/");
-      })
-      .catch((error) => {
-        // An error happened.
-      });
+  const handleError = () => {
+    setImageSrc(avatarImage);
   };
-  useEffect(() => {
-    const result = values && values.data();
-    setSingleUser(result);
-  }, [values]);
   return (
     <div>
       <div className=" d-flex justify-content-center pt-2 bg-black text-danger fw-bold ">
@@ -69,57 +44,59 @@ const Nave = ({ addCart, singleUser, setSingleUser }) => {
                 Shop
               </Nav.Link>
             </Nav>
-            <Nav className="ms-auto bg-yellow gap-3">
+            <Nav className="ms-auto  gap-3">
               <Nav.Link
                 as={Link}
                 to={"/cardshop"}
-                className="d-flex rounded-3 px-3"
+                className="d-flex rounded-3 px-"
                 style={{
                   border: "solid 3px #ffe26e",
                 }}
               >
-                <FaBagShopping className=" fs-4 " />
-                {/* <p className="mt-1">{addCart && addCart.length}0</p> */}
+                <FaBagShopping className=" fs-4 mt-2 me-2 " />
+                <p className="mt-2">{addCart && addCart.length}</p>
               </Nav.Link>
-
               <Nav.Link
                 className="d-flex  rounded-3 px-3 "
                 style={{ border: "solid 3px #ffe26e" }}
+                as={Link}
+                to="/favorites"
               >
-                <FaRegHeart className="mt-1 me-1 fs-4" />
-                <p>{addCart && addCart.length}</p>
+                <FaRegHeart className="mt-2 me-1 fs-4" />
               </Nav.Link>
-
               {singleUser ? (
                 <div className="d-flex">
-                  <div>
-                    <img
-                      src={singleUser.userImage}
-                      className=" rounded-5 "
-                      style={{ width: "2.5em" }}
-                      alt=""
-                    />
-                  </div>
-                  <Dropdown className=" rounded-4">
+                  <Dropdown className=" rounded-4 bg-yellow">
                     <div
-                      className="rounded-3 py-1 px-2 "
+                      className="rounded-3 h-100 "
                       style={{ border: "solid 3px #ffe26e" }}
                     >
-                      <Dropdown.Toggle className=" bg-transparent border-0 rounded-3 pb-2  text-black">
-                        <FaUser className="fs-4  text-black" />
+                      <Dropdown.Toggle className=" bg-transparent border-0 rounded-3 text-black">
+                        <img
+                          src={imageSrc}
+                          onError={handleError}
+                          width="50"
+                          height="50"
+                          alt="User Avatar"
+                          className=""
+                        />
                       </Dropdown.Toggle>
                     </div>
 
-                    <Dropdown.Menu>
+                    <Dropdown.Menu className="bg-light">
                       {singleUser.role == "admin" && (
                         <Dropdown.Item as={Link} to={"/admin"}>
                           Control
                         </Dropdown.Item>
                       )}
-                      <Dropdown.Item as={Link} to={"/profile"}>
+                      <Dropdown.Item
+                        className="bg-yellow3"
+                        as={Link}
+                        to={"/profile"}
+                      >
                         Profile
                       </Dropdown.Item>
-                      <Dropdown.Item onClick={() => Logout()}>
+                      <Dropdown.Item onClick={() => onLogout()}>
                         Log Out
                       </Dropdown.Item>
                     </Dropdown.Menu>
@@ -132,7 +109,7 @@ const Nave = ({ addCart, singleUser, setSingleUser }) => {
                   as={Link}
                   to="/singin"
                 >
-                  <FaUser className=" fs-4 " />
+                  <FaUser className=" fs-4 mt-2 " />
                 </Nav.Link>
               )}
             </Nav>

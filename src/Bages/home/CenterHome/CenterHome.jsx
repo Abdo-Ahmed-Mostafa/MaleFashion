@@ -13,13 +13,12 @@ const CenterHome = () => {
     allProducts.filter((data) => {
       return data.data().category.startsWith("w");
     });
-  console.log(filteration);
   return (
     <div>
-      <div className="container d-flex  align-items-center vh-100">
+      <div className="container d-flex  flex-wrap justify-content-center  align-items-center my-5">
         {filteration &&
           filteration.map((data, index) => (
-            <div key={index} className="product__card__card w-50">
+            <div key={index} className="product__card__card">
               <div className="product__card">
                 <div className="product__image m-auto">
                   <img

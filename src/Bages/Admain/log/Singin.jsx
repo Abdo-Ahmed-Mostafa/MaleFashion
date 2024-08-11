@@ -22,7 +22,7 @@ const Singin = () => {
     signInWithEmailAndPassword(auth, useremail, userPassword)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user);
+        // console.log(user);
         navegiat("/");
       })
       .catch((error) => {
